@@ -1,0 +1,54 @@
+---
+title: "Tidy_Tuesday_2_28_2020"
+author: "Joseph Gabriel"
+date: "2/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## R Markdown
+
+
+```{r, echo=FALSE}
+Measles <-read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-25/measles.csv')
+
+Measles %>% #the Dataset
+  filter(mmr > 0) %>%  #Fchoose  the mmr data to filter for conditions great than one, that we have mmr data on
+  transmute(state, MMR_vacination = case_when(mmr > 90 ~ "Great", #transmute adds anew varibles and drops new ones, keeping state and mmr data
+                                   TRUE ~"Not Good")) %>%
+  mutate_if(is_character, factor) -> Measles2
+#anything that is a characteris now a factor 
+
+
+#subset speciically pulls out data for rowans
+subset(Measles2, state %in% c("Pennsylvania", "New York", "Massachusetts", "Connecticut", "New Jersey","Maine","Vermont", "Texax", "Arkansas" )) -> Measles3
+
+```
+
+
+```{r}
+Measles3 %>%  #the data set
+  group_by(state) %>% 
+  summarise(mmr = mean(MMR_vacination == "Great")) %>%   #percentages of schools that have the vaccination 
+  ggplot(aes(x= reorder(state, mmr), y = mmr, fill = state)) +
+  geom_col(legend = FALSE) + coord_flip() + #legend = FALSE removes the legend 
+theme_classic() + scale_y_continuous(labels = scales::percent) + labs(x = "School's Measles, Mumps, and Rubella (MMR) vaccination rate", y = "State") + ggtitle("MMR Vaccination Rate in Northern and Southern States")
+
+#scales::percent converts the y axis to percent values
+
+
+```
+
+
+
+
+
+
+
+
+
+
